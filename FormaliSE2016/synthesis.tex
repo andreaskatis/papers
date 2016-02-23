@@ -35,9 +35,7 @@ comply to the system contract, and furthermore are extendable by one step:
 		A(s_{n-1}, i_n) \wedge G_T(s_{n-1},i_n,s_n) \Rightarrow \\
 		\hspace{+2cm} \forall i. A(s_n,i) \Rightarrow \exists s'. G_T(s_n,i,s')
 	\end{multline*}
-
 which can be rewritten:
-
 	\begin{multline}
 	\label{ml:extendable2}
 		\forall i_1,s_1,\ldots,i_n,s_n,i. \\
@@ -45,10 +43,7 @@ which can be rewritten:
 		A(s_{n-1}, i_n) \wedge G_T(s_{n-1},i_n,s_n) \wedge A(s_n,i) \Rightarrow \\
 		\hspace{+2cm} \exists s'. G_T(s_n,i,s')
 	\end{multline}
-
-
-
-\noindent Such a formula is exactly what is required by a $\forall\exists$
+Such a formula is exactly what is required by a $\forall\exists$
 solver such as AE-VAL in order to produce the witness for the existential variables $s'$.
 %
 AE-VAL solves this formula by providing an assignment for each existential variable in a piecewise relation based on a partitioning based on assignments to the universal variables.  In other words, by examining a bounded history of the state and input variable values in the contract (the universally quantified variables in Formula~\ref{ml:extendable2}), we determine the next values of the state variables.  An example of a portion of this partitioning is shown in Figure~\ref{fig:skolem-rel}.
@@ -62,13 +57,12 @@ translated into an equivalent program in the Lustre specification language,
 which explicitly defines expressions that dictate the way in which each variable
 is expected to behave after a transition occurs to a new state. Therefore, a
 final implementation is a simple Lustre program that--apart from the initial
-state definitions--contains a set of expressions that depict the behaviour of
+state definitions--contains a set of expressions that depict the behavior of
 each variable under a certain condition, in an equivalent manner to that
 indicated by the Skolem relation.
 \fi
 
 \begin{figure}
-\label{fig:algorithm}
 \begin{small}
 \begin{verbatim}
 // for each variable in I or S,
@@ -95,6 +89,7 @@ while(1) {
 \end{verbatim}
 \end{small}
 \caption{Algorithm skeleton for synthesis}
+\label{fig:algorithm}
 \end{figure}
 
 \noindent
@@ -102,13 +97,13 @@ while(1) {
 Thus, we can construct the skeleton of an algorithm as shown in Figure~\ref{fig:algorithm}.  
 We begin by creating an array for each input and history variable up to depth
 $k$, where $k$ is the depth at which we found a solution to our realizability algorithm.
-In each array, the zero'th element is the `current' value of the variable, the first element is the previous value, and the $k-1$'th value is the $k-1$-step previous value.
+In each array, the zeroth element is the `current' value of the variable, the first element is the previous value, and the $(k-1)$'th value is the $(k-1)$-step previous value.
 We then generate witnesses for each of the {\em BaseCheck'} instances of
 successive depth using the AE-VAL solver to describe the initial behavior of the
 implementation up to depth $k$.  This process starts from the memory-free
 description of the initial state ($G_I$).  There are two `helper' operations:
-{\em update\_array\_history} shifts each array's elements one potition forward
-(the $k-1$'th value is simply forgotten), and {\em read\_inputs} reads the current values of inputs into the zeroth element of the input variable arrays.  Once the history is entirely initialized using the {\em BaseCheck'} witness values, we enter a recurrence loop where we use the solution of the {\em ExtendCheck} to describe the next value of outputs.
+{\em update\_array\_history} shifts each array's elements one position forward
+(the $(k-1)$'th value is simply forgotten), and {\em read\_inputs} reads the current values of inputs into the zeroth element of the input variable arrays.  Once the history is entirely initialized using the {\em BaseCheck'} witness values, we enter a recurrence loop where we use the solution of the {\em ExtendCheck} to describe the next value of outputs.
  
 \iffalse
 Taking this query and providing it as a target formula for AE-VAL effectively
@@ -122,7 +117,7 @@ translated into an equivalent program in the Lustre specification language,
 which explicitly defines expressions that dictate the way in which each variable
 is expected to behave after a transition occurs to a new state. Therefore, a
 final implementation is a simple Lustre program that--apart from the initial
-state definitions--contains a set of expressions that depict the behaviour of
+state definitions--contains a set of expressions that depict the behavior of
 each variable under a certain condition, in an equivalent manner to that
 indicated by the Skolem relation.
 \fi
@@ -142,7 +137,7 @@ to define auxiliary functions, such as \textit{rising\_edge()} which returns ``t
 check a variable's value at the component's initial state.
 
 \begin{requirement}
-\textbf{MC Assumption} - seconds\_to\_cook is greater than or equal to
+\textbf{MC Assumption} -- seconds\_to\_cook is greater than or equal to
 zero.
 \begin{verbatim}
 seconds_to_cook >= 0;
@@ -151,16 +146,16 @@ seconds_to_cook >= 0;
 \end{requirement}
 %
 \begin{requirement}
-\textbf{MC Guarantee-0} - The range of the cooking\_mode variable shall be
+\textbf{MC Guarantee-0} -- The range of the cooking\_mode variable shall be
 [1..3].
 \begin{verbatim}
-cooking_mode >= 1 and cooking_mode <= 3 ;
+cooking_mode >= 1 and cooking_mode <= 3;
 \end{verbatim}
 \label{req:mic0}
 \end{requirement}
 %
 \begin{requirement}
-\textbf{MC Guarantee-1} - The microwave shall be in cooking mode only when the
+\textbf{MC Guarantee-1} -- The microwave shall be in cooking mode only when the
 door is closed.
 \begin{Verbatim}[obeytabs,fontsize=\small]
 is_running => door_closed;
@@ -169,7 +164,7 @@ is_running => door_closed;
 \end{requirement}
 
 \begin{requirement}
-\textbf{MC Guarantee-2} - The microwave shall be in setup mode in the initial
+\textbf{MC Guarantee-2} -- The microwave shall be in setup mode in the initial
 state.
 \begin{verbatim}
 (defs.initially_true(start)) => is_setup;
@@ -178,7 +173,7 @@ state.
 \end{requirement}
 %
 \begin{requirement}
-\textbf{MC Guarantee-3} - At the instant the microwave starts running, it shall
+\textbf{MC Guarantee-3} -- At the instant the microwave starts running, it shall
 be in the cooking mode if the door is closed.
 \begin{Verbatim}[obeytabs,fontsize=]
 (defs.rising_edge(is_running) and
@@ -188,7 +183,7 @@ be in the cooking mode if the door is closed.
 \end{requirement}
 %
 \begin{requirement}
-\textbf{MC Guarantee-4} - At the instant the microwave starts running, it shall
+\textbf{MC Guarantee-4} -- At the instant the microwave starts running, it shall
 enter the suspended mode if the door is open.
 \begin{Verbatim}[obeytabs,fontsize=]
 (defs.rising_edge(is_running) and
@@ -198,7 +193,7 @@ enter the suspended mode if the door is open.
 \end{requirement}
 %
 \begin{requirement}
-\textbf{MC Guarantee-5} - At the instant the clear button is pressed, if the
+\textbf{MC Guarantee-5} -- At the instant the clear button is pressed, if the
 microwave was cooking, then the microwave shall stop cooking.
 \begin{Verbatim}[obeytabs,fontsize=]
 (defs.rising_edge(clear) and
@@ -208,7 +203,7 @@ microwave was cooking, then the microwave shall stop cooking.
 \end{requirement}
 %
 \begin{requirement}
-\textbf{MC Guarantee-6} - At the instant when the clear button is pressed, if
+\textbf{MC Guarantee-6} -- At the instant when the clear button is pressed, if
 the microwave is in suspended mode, it shall enter the setup mode.
 \begin{Verbatim}[obeytabs,fontsize=]
 (defs.rising_edge(clear) and
@@ -218,7 +213,7 @@ the microwave is in suspended mode, it shall enter the setup mode.
 \end{requirement}
 %
 \begin{requirement}
-\textbf{MC Guarantee-7} - If suspended, at the instant the start key is pressed
+\textbf{MC Guarantee-7} -- If suspended, at the instant the start key is pressed
 the microwave shall enter cooking mode if the door is closed.
 \begin{Verbatim}[obeytabs]
 (defs.rising_edge(start) and is_suspended
@@ -228,7 +223,7 @@ the microwave shall enter cooking mode if the door is closed.
 \end{requirement}
 %
 \begin{requirement}
-\textbf{MC Guarantee-8} - If seconds\_to\_cook = 0, microwave will be in setup
+\textbf{MC Guarantee-8} -- If seconds\_to\_cook = 0, microwave will be in setup
 mode.
 \begin{Verbatim}[obeytabs,fontsize=]
 (seconds_to_cook = 0) => is_setup;
@@ -241,15 +236,14 @@ is then given as input to the JKind model checker~\cite{jkind}, where our
 realizability algorithm is implemented as a separate feature. From JKind, the
 Lustre specification is further translated into the SMT-LIB v2 format. In
 reality, the program is split into two different processes that run in parallel and correspond to the
-checks~\ref{eq:sbcheck} and~\ref{eq:echeck} that our synthesis algorithm is
+checks~\ref{eq:echeck} and~\ref{eq:sbcheck} that our synthesis algorithm is
 using. Considering the fact that the
 contract is realizable, we impose the negation of our target
-$\forall\exists$-formula as a query to the AE-VAL skolemizer, during the last
+$\forall\exists$-formula as a query to the AE-VAL skolemizer during the last
 step of \textit{ExtendCheck}. AE-VAL responds that the original formula can be
 satisfied, and provides a Skolem relation, a part of which is shown in Figure~\ref{fig:skolem-rel}.
 
 \begin{figure}
-\label{fig:skolem-rel}
 \begin{Verbatim}[obeytabs,fontsize=\tiny]
 ite([&&
     $defs__rising_edge~1.Mode_Control_Impl_Instance__signal$0
@@ -278,8 +272,9 @@ ite([&&
     ], ...))
 \end{Verbatim}
 \caption{A portion of the Skolem relation generated for the Microwave Mode Logic}
+\label{fig:skolem-rel}
 \end{figure}
-As seen above, the Skolem relation is composed of nested
+As seen in Figure~\ref{fig:skolem-rel}, the Skolem relation is composed of nested
 \textit{if-then-else} blocks, which indicate the possible valid transitions the
 implementation can follow given a specific state, without
 violating the contract. Each variable appearing in the conjuncts of
@@ -288,8 +283,9 @@ the relation is named uniquely after the state that it refers to, using the
 variables, we keep track of whether each state is initial using the variable
 \textit{\%init}.
 
-The structure of the Skolem relation above is simple enough to translate into a
-mainstream program. We need implementations that are able to keep track of the
+The structure of the Skolem relation is simple enough to translate
+into a program in a mainstream language.
+We need implementations that are able to keep track of the
 current state variables, the current inputs, as well as some history
 about the variable values in previous states. This can easily be handled, for
 example, in C with the use of arrays to keep record of each variable's $k$ last
