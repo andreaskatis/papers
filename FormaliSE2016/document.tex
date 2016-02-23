@@ -1,0 +1,104 @@
+%%This is a very basic article template.
+%%There is just one section and two subsections.
+\documentclass{sig-alternate-05-2015}
+
+\usepackage[]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{placeins}
+%\usepackage{fullpage}
+%\usepackage{amsthm}
+
+\usepackage{amsmath,amssymb}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{amsfonts}
+\usepackage{algorithmic}
+\usepackage{hyperref}
+%to solve the hyperref problem of jumping to wrong places
+\usepackage[all]{hypcap}
+\usepackage{courier}
+\usepackage{graphicx}
+\usepackage[usenames, dvipsnames]{color}
+\usepackage[framemethod=TikZ]{mdframed}
+\usepackage{fancyvrb}
+\usepackage{relsize}
+%\graphicspath{{C:/Users/Andreas/eclipse/workspace/Synthesis_Paper/images/}}
+
+\usepackage{float}
+
+\renewcommand{\labelitemi}{\tiny$\blacksquare$}
+
+\newcommand{\andreas}[1]{\textcolor{blue}{Andreas: #1}}
+\newcommand{\mike}[1]{\textcolor{red}{Mike: #1}}
+\newcommand{\andrew}[1]{\textcolor{green}{Andrew: #1}}
+
+\newenvironment{requirement}
+{\vspace{0.05in}
+ \begin{mdframed}[roundcorner=10pt,backgroundcolor=gray!20]}
+{\end{mdframed}}
+
+\begin{document}
+
+
+\title{Towards Synthesis from Assume-Guarantee Contracts involving Infinite
+Theories: A Preliminary Report}
+
+\numberofauthors{3}
+\author{
+\alignauthor
+	Andreas Katis\\
+	   \affaddr{Department of Computer Science and Engineering}\\
+       \affaddr{University of Minnesota}\\
+       \affaddr{200 Union Street}\\
+       \affaddr{Minneapolis, MN 55455,USA}\\
+       \email{katis001@umn.edu}
+\alignauthor
+	Andrew Gacek\\
+       \affaddr{Rockwell Collins Advanced Technology Center}\\
+       \affaddr{400 Collins Rd. NE}\\
+       \affaddr{Cedar Rapids, IA, 52498, USA}\\
+       \email{andrew.gacek@\\rockwellcollins.com}
+\alignauthor
+	Michael W. Whalen
+	   \affaddr{Department of Computer Science and Engineering}\\
+       \affaddr{University of Minnesota}\\
+       \affaddr{200 Union Street}\\
+       \affaddr{Minneapolis, MN 55455,USA}\\
+       \email{whalen@cs.umn.edu}}
+
+
+\maketitle
+
+\begin{abstract}
+In previous work, we have introduced a contract-based {\em realizability checking} 
+algorithm for assume-guarantee contracts involving infinite theories, such as 
+linear integer/real arithmetic and uninterpreted functions over infinite domains.  
+This algorithm can determine whether or not it is possible to construct a 
+realization (i.e. an implementation) of an assume-guarantee contract.  
+The algorithm is similar to k-induction model checking, but involves the use of 
+quantifiers to determine implementability.
+
+While our work on realizability is inherently useful for {\em virtual integration} 
+in determining whether it is possible for suppliers to build software that meets 
+a contract, it also provides the foundations to solving the more challenging problem 
+of component synthesis. In this paper, we provide an initial synthesis 
+algorithm for assume-guarantee contracts involving 
+infinite theories.  To do so, we take advantage of our realizability checking 
+procedure and a skolemization solver for $\forall\exists$-formulas, called
+AE-VAL.  We show that it is possible to immediately
+adapt our existing algorithm towards synthesis by using this solver, using a demonstration example.  We then discuss challenges towards creating a more robust synthesis algorithm.
+
+\end{abstract}
+
+\input{introduction}
+\input{preliminaries}
+\input{synthesis}
+\input{related}
+\input{conclusion}
+
+\section{Acknowledgments}
+This work was funded by DARPA and AFRL under contract 4504789784 (Secure Mathematically-Assured Composition of Control Models), and by NASA under contract NNA13AA21C (Compositional Verification of Flight Critical Systems), and by NSF under grant CNS-1035715 (Assuring the safety, security, and reliability of medical device cyber physical systems).
+\bibliographystyle{IEEEtran}
+\bibliography{document}
+
+\end{document}

@@ -1,0 +1,297 @@
+\section{Synthesis from Contracts}
+\label{sec:synthesis}
+
+With a sound implementation of the realizability checking algorithm at
+hand, the next step was to tackle the more
+interesting problem of synthesis, i.e. the automated derivation of
+implementations that would be safe in terms of satisfying the constraints
+defined by the component's contract. The intuition behind solving the
+synthesis problem in our context relies on finding a set of initial states
+$I$ and a transition relation $T$ that would satisfy the requirements
+specified in the contract. Unfortunately, the lack of power in SMT-solvers in
+terms of solving formulas that contain higher-order quantification immediately
+ruled out the prospect of using one as our primary synthesis tool. Therefore, an alternative work from Fedyukovich et al.~\cite{fedyukovichae,fedyukovich2014automated} on a skolemizer for $\forall\exists$-formulas on linear integer arithmetic was chosen to be used as a means of extracting a witness that could directly be used in component synthesis.
+
+The tool, called AE-VAL is using the Model-Based Projection technique
+in~\cite{komuravelli2014smt} to validate $\forall\exists$-formulas, based on
+Loos-Weispfenning quantifier elimination~\cite{loos1993applying}.
+As part of the procedure, a Skolem relation is provided for the existentially quantified variables of the formula. The algorithm
+initially distributes the models of the original formula into disjoint
+uninterpreted partitions, with a local Skolem relation being computed for each
+partition in the process. From there, the use of a Horn-solver provides an
+interpretation for each partition, and a final global Skolem relation is produced.
+
+The idea behind our approach to solving the synthesis problem is simple.
+Consider the checks~\ref{eq:sbcheck} and~\ref{eq:echeck} that the realizability
+checking algorithm is using. \textit{BaseCheck'} is still
+necessary for the synthesis problem to ensure that all initial states in the problem are valid.
+\textit{ExtendCheck} on the other hand can be further used in actually
+synthesizing implementations. The check tries to prove that every valid state in
+our system is extendable, i.e. all states can be starting points to paths that
+comply to the system contract, and furthermore are extendable by one step:
+	\begin{multline*}
+		\forall i_1,s_1,\ldots,i_n,s_n. \\
+		\hspace{-2cm} A(s,i_1) \wedge G_T(s,i_1,s_1) \wedge \ldots \wedge \\
+		A(s_{n-1}, i_n) \wedge G_T(s_{n-1},i_n,s_n) \Rightarrow \\
+		\hspace{+2cm} \forall i. A(s_n,i) \Rightarrow \exists s'. G_T(s_n,i,s')
+	\end{multline*}
+
+which can be rewritten:
+
+	\begin{multline}
+	\label{ml:extendable2}
+		\forall i_1,s_1,\ldots,i_n,s_n,i. \\
+		\hspace{-2cm} A(s,i_1) \wedge G_T(s,i_1,s_1) \wedge \ldots \wedge \\
+		A(s_{n-1}, i_n) \wedge G_T(s_{n-1},i_n,s_n) \wedge A(s_n,i) \Rightarrow \\
+		\hspace{+2cm} \exists s'. G_T(s_n,i,s')
+	\end{multline}
+
+
+
+\noindent Such a formula is exactly what is required by a $\forall\exists$
+solver such as AE-VAL in order to produce the witness for the existential variables $s'$.
+%
+AE-VAL solves this formula by providing an assignment for each existential variable in a piecewise relation based on a partitioning based on assignments to the universal variables.  In other words, by examining a bounded history of the state and input variable values in the contract (the universally quantified variables in Formula~\ref{ml:extendable2}), we determine the next values of the state variables.  An example of a portion of this partitioning is shown in Figure~\ref{fig:skolem-rel}.
+In other words, the Skolem relation contains, starting from a valid
+initial state of variables, strategies in terms of how the new state is
+selected, in such a way, that the contract is not violated.
+\iffalse
+This is particularly
+interesting in our case since in the underlying machinery, each contract is
+translated into an equivalent program in the Lustre specification language,
+which explicitly defines expressions that dictate the way in which each variable
+is expected to behave after a transition occurs to a new state. Therefore, a
+final implementation is a simple Lustre program that--apart from the initial
+state definitions--contains a set of expressions that depict the behaviour of
+each variable under a certain condition, in an equivalent manner to that
+indicated by the Skolem relation.
+\fi
+
+\begin{figure}
+\label{fig:algorithm}
+\begin{small}
+\begin{verbatim}
+// for each variable in I or S,
+//   create an array of size k.
+//   then initialize initial state values
+assign_GI_witness_to_S;
+update_array_history;
+
+// Perform bounded 'base check' synthesis
+read_inputs;
+base_check'_1_solution;
+update_array_history;
+...
+read_inputs;
+base_check'_k_solution;
+update_array_history;
+
+// Perform recurrence from 'extends' check
+while(1) {
+ read_inputs;
+ extend_check_k_solution;
+ update_array_history;
+}
+\end{verbatim}
+\end{small}
+\caption{Algorithm skeleton for synthesis}
+\end{figure}
+
+\noindent
+
+Thus, we can construct the skeleton of an algorithm as shown in Figure~\ref{fig:algorithm}.  
+We begin by creating an array for each input and history variable up to depth
+$k$, where $k$ is the depth at which we found a solution to our realizability algorithm.
+In each array, the zero'th element is the `current' value of the variable, the first element is the previous value, and the $k-1$'th value is the $k-1$-step previous value.
+We then generate witnesses for each of the {\em BaseCheck'} instances of
+successive depth using the AE-VAL solver to describe the initial behavior of the
+implementation up to depth $k$.  This process starts from the memory-free
+description of the initial state ($G_I$).  There are two `helper' operations:
+{\em update\_array\_history} shifts each array's elements one potition forward
+(the $k-1$'th value is simply forgotten), and {\em read\_inputs} reads the current values of inputs into the zeroth element of the input variable arrays.  Once the history is entirely initialized using the {\em BaseCheck'} witness values, we enter a recurrence loop where we use the solution of the {\em ExtendCheck} to describe the next value of outputs.
+ 
+\iffalse
+Taking this query and providing it as a target formula for AE-VAL effectively
+gives an answer to the synthesis problem in the form of a Skolem relation for
+the candidate states that can further extend valid execution paths in the
+system. In other words, the Skolem relation contains, starting from a valid
+initial state of variables, strategies in terms of how the new state is
+selected, in such a way, that the contract is not violated. This is particularly
+interesting in our case since in the underlying machinery, each contract is
+translated into an equivalent program in the Lustre specification language,
+which explicitly defines expressions that dictate the way in which each variable
+is expected to behave after a transition occurs to a new state. Therefore, a
+final implementation is a simple Lustre program that--apart from the initial
+state definitions--contains a set of expressions that depict the behaviour of
+each variable under a certain condition, in an equivalent manner to that
+indicated by the Skolem relation.
+\fi
+
+\subsection{Synthesis Example}
+As an example that demonstrates the process, consider the contract created for
+a mode controller in a simple microwave model of 260 lines of code that was
+used as one of the base case studies in~\cite{Katis15:Realizability}. The
+controller has four inputs, \textit{start} which is used to indicate whether the microwave is at an initial
+state or not, \textit{clear} that is used as a stop signal for the system,
+\textit{seconds\_to\_cook} as a countdown timer and \textit{door\_closed} as an
+indicator that the microwave's door is closed or not. The controller returns the
+current state of the microwave's mode using \textit{cooking\_mode}. The contract
+consists of one assumption and nine guarantees, which are shown below
+informally, as well as formally in AADL. A library named \textit{defs} is used
+to define auxiliary functions, such as \textit{rising\_edge()} which returns ``true'' when the corresponding signal is at its rising edge, and \textit{initially\_true()} which is used to
+check a variable's value at the component's initial state.
+
+\begin{requirement}
+\textbf{MC Assumption} - seconds\_to\_cook is greater than or equal to
+zero.
+\begin{verbatim}
+seconds_to_cook >= 0;
+\end{verbatim}
+\label{req:micasm}
+\end{requirement}
+%
+\begin{requirement}
+\textbf{MC Guarantee-0} - The range of the cooking\_mode variable shall be
+[1..3].
+\begin{verbatim}
+cooking_mode >= 1 and cooking_mode <= 3 ;
+\end{verbatim}
+\label{req:mic0}
+\end{requirement}
+%
+\begin{requirement}
+\textbf{MC Guarantee-1} - The microwave shall be in cooking mode only when the
+door is closed.
+\begin{Verbatim}[obeytabs,fontsize=\small]
+is_running => door_closed;
+\end{Verbatim}
+\label{req:mic1}
+\end{requirement}
+
+\begin{requirement}
+\textbf{MC Guarantee-2} - The microwave shall be in setup mode in the initial
+state.
+\begin{verbatim}
+(defs.initially_true(start)) => is_setup;
+\end{verbatim}
+\label{req:mic2}
+\end{requirement}
+%
+\begin{requirement}
+\textbf{MC Guarantee-3} - At the instant the microwave starts running, it shall
+be in the cooking mode if the door is closed.
+\begin{Verbatim}[obeytabs,fontsize=]
+(defs.rising_edge(is_running) and
+	       door_closed) => is_cooking;
+\end{Verbatim}
+\label{req:mic3}
+\end{requirement}
+%
+\begin{requirement}
+\textbf{MC Guarantee-4} - At the instant the microwave starts running, it shall
+enter the suspended mode if the door is open.
+\begin{Verbatim}[obeytabs,fontsize=]
+(defs.rising_edge(is_running) and
+	not door_closed) => is_suspended;
+\end{Verbatim}
+\label{req:mic4}
+\end{requirement}
+%
+\begin{requirement}
+\textbf{MC Guarantee-5} - At the instant the clear button is pressed, if the
+microwave was cooking, then the microwave shall stop cooking.
+\begin{Verbatim}[obeytabs,fontsize=]
+(defs.rising_edge(clear) and
+	is_cooking) => not is_cooking;
+\end{Verbatim}
+\label{req:mic5}
+\end{requirement}
+%
+\begin{requirement}
+\textbf{MC Guarantee-6} - At the instant when the clear button is pressed, if
+the microwave is in suspended mode, it shall enter the setup mode.
+\begin{Verbatim}[obeytabs,fontsize=]
+(defs.rising_edge(clear) and
+	is_suspended) => is_setup;
+\end{Verbatim}
+\label{req:mic6}
+\end{requirement}
+%
+\begin{requirement}
+\textbf{MC Guarantee-7} - If suspended, at the instant the start key is pressed
+the microwave shall enter cooking mode if the door is closed.
+\begin{Verbatim}[obeytabs]
+(defs.rising_edge(start) and is_suspended
+	and door_closed) => is_cooking;
+\end{Verbatim}
+\label{req:mic7}
+\end{requirement}
+%
+\begin{requirement}
+\textbf{MC Guarantee-8} - If seconds\_to\_cook = 0, microwave will be in setup
+mode.
+\begin{Verbatim}[obeytabs,fontsize=]
+(seconds_to_cook = 0) => is_setup;
+\end{Verbatim}
+\label{req:mic8}
+\end{requirement}
+
+The contract is then translated from AADL into an equivalent Lustre program that
+is then given as input to the JKind model checker~\cite{jkind}, where our
+realizability algorithm is implemented as a separate feature. From JKind, the
+Lustre specification is further translated into the SMT-LIB v2 format. In
+reality, the program is split into two different processes that run in parallel and correspond to the
+checks~\ref{eq:sbcheck} and~\ref{eq:echeck} that our synthesis algorithm is
+using. Considering the fact that the
+contract is realizable, we impose the negation of our target
+$\forall\exists$-formula as a query to the AE-VAL skolemizer, during the last
+step of \textit{ExtendCheck}. AE-VAL responds that the original formula can be
+satisfied, and provides a Skolem relation, a part of which is shown in Figure~\ref{fig:skolem-rel}.
+
+\begin{figure}
+\label{fig:skolem-rel}
+\begin{Verbatim}[obeytabs,fontsize=\tiny]
+ite([&&
+    $defs__rising_edge~1.Mode_Control_Impl_Instance__signal$0
+    !($Mode_Control_Impl_Instance__seconds_to_cook$0>=0)
+    !$defs__initially_true~0.Mode_Control_Impl_Instance__result$0
+  ], [&&
+    $Mode_Control_Impl_Instance__is_setup$0
+    $defs__rising_edge~1.Mode_Control_Impl_Instance__re$0
+    !$Mode_Control_Impl_Instance__is_cooking$0
+    $defs__rising_edge~1.Mode_Control_Impl_Instance__signal$0
+    !$_TOTAL_COMP_HIST$0
+    !$_SYSTEM_ASSUMP_HIST$0
+    !$Mode_Control_Impl_Instance__is_suspended$0
+    !$Mode_Control_Impl_Instance__is_running$0
+    !$defs__rising_edge~0.Mode_Control_Impl_Instance__re$0
+    !$defs__initially_true~0.Mode_Control_Impl_Instance__b$0
+    !$defs__initially_true~0.Mode_Control_Impl_Instance__result$0
+    !$defs__rising_edge~2.Mode_Control_Impl_Instance__re$0
+    !$defs__rising_edge~2.Mode_Control_Impl_Instance__signal$0
+  ], ite([&&
+      %init
+      $_SYS_GUARANTEE_2$0
+      !($Mode_Control_Impl_Instance__seconds_to_cook$0>=0)
+      !$defs__rising_edge~1.Mode_Control_Impl_Instance__signal$0
+      !$defs__initially_true~0.Mode_Control_Impl_Instance__b$0
+    ], ...))
+\end{Verbatim}
+\caption{A portion of the Skolem relation generated for the Microwave Mode Logic}
+\end{figure}
+As seen above, the Skolem relation is composed of nested
+\textit{if-then-else} blocks, which indicate the possible valid transitions the
+implementation can follow given a specific state, without
+violating the contract. Each variable appearing in the conjuncts of
+the relation is named uniquely after the state that it refers to, using the
+\textit{\$X} postfix, where $X$ is an integer. In addition to each state's
+variables, we keep track of whether each state is initial using the variable
+\textit{\%init}.
+
+The structure of the Skolem relation above is simple enough to translate into a
+mainstream program. We need implementations that are able to keep track of the
+current state variables, the current inputs, as well as some history
+about the variable values in previous states. This can easily be handled, for
+example, in C with the use of arrays to keep record of each variable's $k$ last
+values, and the use of functions that update each variable's corresponding array
+to reflect the changes following a new step using the transition relation.

@@ -1,0 +1,32 @@
+\section{Introduction}
+The problem of automated synthesis of reactive systems using from propositional specifications is a very well studied area of research~\cite{gulwani2010dimensions}. By definition, the problem of synthesis entails the discovery of efficient algorithms able to construct a candidate program that is guaranteed to comply with the predefined specification. Inevitably, the related work on synthesis has tackled several sub-problems, such as that of function and template synthesis, as well as the weaker problem regarding the implementability, or otherwise, realizability of the specification.
+
+In a similar fashion, a collaboration between Rockwell Collins and
+the University of Minnesota has focused on designing tools that provide
+compositional proofs of correctness~\cite{NFM2012:CoGaMiWhLaLu,Whalen13:WhatHow:TwinPeaksIEEESoftware,hilt2013,QFCS15:backes}.
+In the context of synthesis, we recently introduced a decision procedure for determine the {\em realizability} of contracts involving infinite theories such as the linear integer/real arithmetic and/or uninterpreted functions that is checkable by any SMT solver that supports quantification~\cite{Katis15:Realizability}. Furthermore, in~\cite{Katis:machine} we formally proved the soundness of our checking algorithm using the Coq interactive theorem prover. The realizability checking procedure is now part of the AGREE reasoning framework~\cite{NFM2012:CoGaMiWhLaLu}, which supports compositional
+assume/guarantee contract reasoning over system architectural models written in
+AADL~\cite{SAE:AADL}.
+
+While checking the realizability of contracts provided us with fruitful results
+and insight in several case studies, it also worked as solid ground towards the
+development of an automatic component synthesis procedure. The
+most important obstacle initially, was the inability of the SMT-solver to
+handle higher-order quantification. Fortunately, interesting directions to
+solving this problem have already surfaced, either by extending an SMT-solver
+with native synthesis capabilities\cite{reynoldscounterexample}, or by providing
+external algorithms that reduce the problem by efficient quantifier elimination methods~\cite{fedyukovichae}.
+
+The main contribution of this paper is, therefore, the implementation of a
+component synthesis algorithm for infinite theories, using specifications
+expressed in assume-guarantee reasoning.  The algorithm heavily relies on our previous implementation for realizability checking, but also takes advantage of a recently published skolemizer for $\forall\exists$-formulas, named
+AE-VAL. The main idea in this implementation is to effectively extract a Skolem
+relation that is essentially, a collection of strategies, that can directly lead to an implementation which is guaranteed to comply to the corresponding contract.
+
+In Section~\ref{sec:preliminaries} we provide the necessary background
+definitions from our previous work on realizability checking.
+Section~\ref{sec:synthesis} presents our approach to solving the synthesis
+problem for assume-guarantee contracts using theories. Finally, in
+Section~\ref{sec:related work} we give a brief historical background on the
+related research work on synthesis, and we report our conclusions and upcoming
+future work in Section~\ref{sec:conclusion}.

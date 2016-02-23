@@ -1,0 +1,37 @@
+\section{conclusion}
+\label{sec:conclusion}
+
+In this paper we present the first known algorithm of implementation synthesis
+from assume-guarantee contracts, using theories. To achieve this, we took
+advantage of our previous work, by extracting programs directly from the
+contract's proof of realizability. Additionally, the algorithm depends on the
+extraction of Skolem relations from the AE-VAL decision procedure for
+$\forall\exists$-formulas.
+
+Future work involves exploring the solution to many obstacles that stand still.
+First, we want to aim towards extending our current approach to other theories
+like linear real arithmetic, as AE-VAL currently only supports integer
+arithmetic. Another goal that we are interested in exploring is the definition
+of a better realizability checking algorithm based on the idea of invariant
+generation, using the idea of property directed
+reachability~\cite{bradley11,cimatti2014ic3,een2011efficient}. Another problem
+to potentially consider are cases where the provided implementation cannot
+actually be used in practice. This is an interesting area of research
+due to the use of infinite theories in our approach, which may result in
+implementations that use infinite precision, a feature that cannot be
+practically achieved by any real program.
+
+Several other directions to improving our existing synthesis algorithm involve
+the improvement of representations in our context. For example the transition
+relation often takes up a big portion of the final SMT-LIB output that is given
+to AE-VAL to process, and is relatively hard to process. The same applies to the
+Skolem relation, which for this example is almost 900 lines of nested
+\textit{if-then-else} blocks. An interesting approach to improving the algorithm's performance relies in the translation
+of the original data-flow program from Lustre to a finite state machine, using a
+sophisticated compilation methods as the ones presented
+in~\cite{Halbwachs91:codegen}.
+The disadvantage of using this approach is mainly that the final state machine
+is not guaranteed to be minimal, due to the declarative nature of the programs
+that we exercise. As a final remark, we intend to formally verify the synthesis
+algorithm presented in this paper, by extending the proof that has already been
+constructed for our algorithm on realizability checking.

@@ -1,0 +1,50 @@
+\section{related work}
+\label{sec:related work}
+
+The problem of program synthesis was first expressed formally in the early
+1970s~\cite{manna1971toward} as a potentially important area of study and
+research. 
+Pnuelli and Rosner use the term
+$\textit{implementability}$ in~\cite{Pnueli89} to refer to the problem of synthesis for
+propositional LTL. Additionally, the authors in~\cite{Pnueli89} proved that the
+lower-bound time complexity of the problem is doubly exponential, in the worst
+case. In the following years, several techniques were introduced to deal with
+the synthesis problem in a more efficient way for subsets of propositional LTL
+\cite{Klein10}, simple LTL formulas (\cite{Bohy12}, \cite{Tini03}), as well as
+in a component-based approach \cite{Chatterjee07} and specifications based on
+other temporal logics (\cite{benevs2012factorization}, \cite{Hamza10}), such as SIS
+\cite{Aziz95}.
+
+In 2010, a survey from Sumit Gulwani described the 
+directions that future research will focus on, towards the
+road of fully automated synthesis of programs~\cite{gulwani2010dimensions}.
+%
+The approaches that have been proposed are many, and differ on many aspects,
+either in terms of the specifications that are being exercised, or the reasoning
+behind the synthesis algorithm itself. On the one hand, template-based
+synthesis~\cite{srivastava2013template} is focused on the exploration of
+programs that satisfy a specification that is refined after each
+iteration, following the basic principles of deductive synthesis. Inductive
+synthesis, on the other hand, is an active area of research where the main goal
+is the generation of an inductive invariant that can be used to describe the
+space of programs that are guaranteed to satisfy the given
+specification~\cite{flener2001inductive}.
+This idea is mainly supported by the use of SMT-solvers to guide the invariant
+refinement through traces that violate the requirements, known as
+counterexamples. Recently published work on extending SMT-solvers with
+counterexample-guided synthesis shows that they can eventually be
+used as an alternative to solving the problem under certain domains of
+arithmetic~\cite{reynoldscounterexample}.
+
+Finally, an interesting and relevant work has been done regarding the solution
+to the controllability problem using in \cite{micheli_aaai_2012}
+\cite{micheli_cp_2012} and \cite{micheli_constraints_2014}, which involves the
+decision on the existence a strategy that assigns certain values to a set of
+controllable activities, with respect to a set of uncontrollable ones.
+
+Our approach relies on the idea of extracting programs that satisfy the
+constraints from the proof of their realizability that is produced by a
+sophisticated theorem prover. The proof itself is provided
+through a model checking approach that follows the k-induction principle. To the
+best of our knowledge this is the first attempt on providing a synthesis
+algorithm for an Assume-Guarantee framework, using infinite theories.
