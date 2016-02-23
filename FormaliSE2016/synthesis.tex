@@ -8,7 +8,7 @@ implementations that would be safe in terms of satisfying the constraints
 defined by the component's contract. The intuition behind solving the
 synthesis problem in our context relies on finding a set of initial states
 $I$ and a transition relation $T$ that would satisfy the requirements
-specified in the contract. Unfortunately, the lack of power in SMT-solvers in
+specified in the contract. Unfortunately, the lack of power in SMT solvers in
 terms of solving formulas that contain higher-order quantification immediately
 ruled out the prospect of using one as our primary synthesis tool. Therefore, an alternative work from Fedyukovich et al.~\cite{fedyukovichae,fedyukovich2014automated} on a skolemizer for $\forall\exists$-formulas on linear integer arithmetic was chosen to be used as a means of extracting a witness that could directly be used in component synthesis.
 

@@ -1,7 +1,9 @@
 \section{Preliminaries}
 \label{sec:preliminaries}
 
-In the remainder of the paper, we endeavor to solve a synthesis problem for assume/guarantee contracts involving infinite theories.  Formally, an implementation is a set of valid initial states $I$ and transition relation $T$ that implements the contract.  In this section, we introduce the necessary formal machinery to talk about {\em realizations} of an assume guarantee contract.
+In the remainder of the paper, we endeavor to solve a synthesis problem for
+assume-guarantee contracts involving infinite theories.  Formally, an
+implementation is a set of valid initial states $I$ and transition relation $T$ that implements the contract.  In this section, we introduce the necessary formal machinery to talk about {\em realizations} of an assume-guarantee contract.
 
 \subsection{Example}
 As an illustrative example, consider the contract specified in
@@ -106,7 +108,7 @@ ExtendCheck(n) = \forall s. Extend_n(s)
 \end{equation}
 Due to the definition of finite viability containing $2n$
 quantifier alternations, we can not practically use \textit{BaseCheck} as the
-current SMT-solvers struggle solving formulas of such structure. Therefore we
+current SMT solvers struggle solving formulas of such structure. Therefore we
 finally proposed a simplified version of \textit{BaseCheck}, which essentially
 tries to prove that all initial states are extendable for any $k \leq n$.
 \begin{equation}
@@ -115,7 +117,7 @@ BaseCheck'(n) = \forall k \leq n. (\forall s. G_I(s)
 	  	\Rightarrow Extend_k(s))
 \end{equation}
 
-Even though the simplified definition is more simple for an SMT-solver to
+Even though the simplified definition is more simple for an SMT solver to
 process, it comes with a cost, as it introduces cases of realizable contracts
 that are considered to be unrealizable from the algorithm. To the extend of our
 experiments, such a case has yet to be met, as it inherently requires the user
